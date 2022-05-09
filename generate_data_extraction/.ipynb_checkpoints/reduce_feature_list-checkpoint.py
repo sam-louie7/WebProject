@@ -40,6 +40,7 @@ def init_top_lvl_df(df, numeric_cols):
     return df
 
 
+
 def init_hits_df(df, numeric_cols, time_col):
     df['visitStartTime'] = convert_to_datetime(df, 'visitStartTime')
     df = convert_multiple_columns_to_numeric(df, cols=numeric_cols)
@@ -48,52 +49,52 @@ def init_hits_df(df, numeric_cols, time_col):
     return df
 
 
+
 def emotional_rational_hits_features(df_hits):
     # AVG_PRODUCTS_IN_SESSION
-    df0 = df_group_by_mul_col(df_hits, 'numOfProduct', ['fullVisitorId', 'visitStartTime'], 'sum')
-    df = df_by_group_by_single_column(df0, 'fullVisitorId', 'numOfProduct' , 'mean')
-    df['hits.products_per_session'] = column_z_score(df, 'numOfProduct')
-    df = df.drop('numOfProduct', axis=1)
+    df0 = df_group_by_mul_col(df_hits, 'numOfProducts', ['fullVisitorId', 'visitStartTime'], 'sum').reset_index(level=1)
+    df1 = df_by_group_by_single_column(df0, 'fullVisitorId', 'numOfProducts' , 'mean')
+    df =  column_z_score(df1['numOfProducts']).to_frame('hits.products_per_session')
     # AVG_VIEW_PRD
-    df0 = df_filter_and_group_by_mul_col(df_hits, 'hits.eCommerceAction.action_type', [2], ['fullVisitorId', 'visitStartTime'], 'count')
-    df0 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.eCommerceAction.action_type', 'mean')
-    df['hits.avg_viewd_product'] = column_z_score(df0, 'hits.eCommerceAction.action_type')
+    df0 = df_filter_and_group_by_mul_col(df_hits, 'hits.eCommerceAction.action_type', [2], ['fullVisitorId', 'visitStartTime'], 'count').reset_index(level=1)
+    df1 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.eCommerceAction.action_type', 'mean') 
+    df['hits.avg_viewd_product'] = column_z_score(df1['hits.eCommerceAction.action_type'])
     # AVG_AVG_TIMETOHIT
-    df0 = df_group_by_mul_col(df_hits, 'hits.deltaTimeMS', ['fullVisitorId', 'visitStartTime'], 'mean')
-    df0 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.deltaTimeMS', 'mean')
-    df['hits.avg_time2hit'] = column_z_score(df0, 'hits.eCommerceAction.action_type')
+    df0 = df_group_by_mul_col(df_hits, 'hits.deltaTimeMS', ['fullVisitorId', 'visitStartTime'], 'mean').reset_index(level=1)
+    df1 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.deltaTimeMS', 'mean')
+    df['hits.avg_time2hit'] = column_z_score(df1['hits.deltaTimeMS'])
     # AVG_TIME_ADD_PRD / RMV_PRD
-    df0 = df_filter_and_agg_by_diff_col(df_hits, 'hits.eCommerceAction.action_type', [3], ['fullVisitorId', 'visitStartTime'], 'hits.time', 'mean')
-    df0 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.time', 'mean')
-    df['hits.avg_time_add_prod'] = column_z_score(df0, 'hits.time')
-    df0 = df_filter_and_agg_by_diff_col(df_hits, 'hits.eCommerceAction.action_type', [4], ['fullVisitorId', 'visitStartTime'], 'hits.time', 'mean')
-    df0 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.time', 'mean')
-    df['hits.avg_time_rmv_prod'] = column_z_score(df0, 'hits.time')
-    # AVG_PAYMENT_PAGE
-    df0 = df_group_by_mul_col(df_hits, 'hits.contentGroup.contentGroup1', ['fullVisitorId', 'visitStartTime'], 'count')
-    df1 = df_filter_and_group_by_single_col(df0, 'hits.contentGroup.contentGroup1', 'Payment Page', 'fullVisitorId', 'mean')
-    df['hits.avg_payment_page'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # AVG_DROPDOWN_CLICK
-    df1 = df_filter_and_group_by_single_col(df0, 'hits.contentGroup.contentGroup1', 'Dropdown Click', 'fullVisitorId', 'mean')
-    df['hits.avg_dropdown_click'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # AVG_SUPPORT_PAGE
-    df1 = df_filter_and_group_by_single_col(df0, 'hits.contentGroup.contentGroup1', 'Support Page', 'fullVisitorId', 'mean')
-    df['hits.avg_support_page'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # # AVG_Article_PAGE
-    df1 = df_filter_and_group_by_single_col(df0, 'hits.contentGroup.contentGroup1', 'Article Page', 'fullVisitorId', 'mean')
-    df['hits.avg_article_page'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # AVG_FEEDBACK_PAGE
-    df1 = df_filter_and_group_by_single_col(df0, 'hits.contentGroup.contentGroup1', 'Feedback Page', 'fullVisitorId', 'mean')
-    df['hits.avg_feedback_page'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # AVG_SHOPPING_CART
-    df1 = df_filter_and_group_by_single_col(df0, 'hits.contentGroup.contentGroup1', 'Shopping Cart', 'fullVisitorId', 'mean')
-    df['hits.avg_shopping_cart'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # AVG_DROP_FILTER_CLICK
-    df1 = df_filter_and_group_by_single_col(df1, 'hits.contentGroup.contentGroup1', 'Drop Filter Click', 'fullVisitorId', 'mean')
-    df['hits.avg_drop_filter_click'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
-    # AVG_CNT_SEARCH_KEYWORD
-    df1 = df_filter_and_group_by_single_col(df1, 'hits.contentGroup.contentGroup1', 'Search Keyword', 'fullVisitorId', 'mean')
-    df['hits.avg_search_keyword'] = column_z_score(df1, 'hits.contentGroup.contentGroup1')
+    df0 = df_filter_and_agg_by_diff_col(df_hits, 'hits.eCommerceAction.action_type', [3], ['fullVisitorId', 'visitStartTime'], 'hits.time', 'mean').reset_index(level=1)
+    df1 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.time', 'mean')
+    df['hits.avg_time_add_prod'] = column_z_score(df1['hits.time'])
+    #
+    df0 = df_filter_and_agg_by_diff_col(df_hits, 'hits.eCommerceAction.action_type', [4], ['fullVisitorId', 'visitStartTime'], 'hits.time', 'mean').reset_index(level=1)
+    df1 = df_by_group_by_single_column(df0, 'fullVisitorId', 'hits.time', 'mean')
+    df['hits.avg_time_rmv_prod'] = column_z_score(df1['hits.time'])
+    
+    # 
+    df0 = df_hits.groupby(['fullVisitorId', 'hits.contentGroup.contentGroup1'])['hits.contentGroup.contentGroup1'].agg('count').to_frame('contentGroupCount').reset_index(level=1)
+    # PAYMENT_PAGE
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Payment Page']
+    df['hits.avg_payment_page'] = column_z_score(df1['contentGroupCount'])
+    # SUPPORT_PAGE
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Support Page']
+    df['hits.avg_support_page'] = column_z_score(df1['contentGroupCount'])
+    #  Article_PAGE
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Article Page']
+    df['hits.avg_article_page'] = column_z_score(df1['contentGroupCount'])
+    # SHOPPING_CART
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Shopping Cart']
+    df['hits.avg_shopping_cart'] = column_z_score(df1['contentGroupCount'])
+    # Thank you page
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Thank you Page']
+    df['hits.avg_search_keyword'] = column_z_score(df1['contentGroupCount'])
+    # product page
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Product Page']
+    df['hits.avg_search_keyword'] = column_z_score(df1['contentGroupCount'])
+     # shopping cart
+    df1 = df0.loc[df0['hits.contentGroup.contentGroup1'] ==  'Shopping Cart']
+    df['hits.avg_search_keyword'] = column_z_score(df1['contentGroupCount'])
 
     return df
 
@@ -120,9 +121,11 @@ def emotional_rational_toplvl_features(df_top_lvl):
     # MEAN FOR TOTALS VIEWS
     df0 = df_by_group_by_single_column(df_top_lvl, 'fullVisitorId', 'totals.hits', 'mean')
     df['avg_hits'] = column_z_score(df0['totals.hits'])
+    #
     df0 = df_by_group_by_single_column(df_top_lvl, 'fullVisitorId', 'totals.pageviews', 'mean')
     df['avg_page_views'] = column_z_score(df0['totals.pageviews'])
-    df0 = df_by_group_by_single_column(df_top_lvl, 'fullVisitorId', 'totals.timeOnSite', 'mean')
+    #
+    df0 = df_by_group_by_single_column(df_top_lvl, 'fullVisitorId', 'totals.timeOnSite', 'mean') 
     df['avg_time_on_site'] = column_z_score(df0['totals.timeOnSite'])
     # end of month ratio
     sr = group_by_start_or_end_of_month(df_top_lvl, 'visitStartTime', 'fullVisitorId', 'clientId', 'SM')
@@ -135,7 +138,7 @@ def emotional_rational_toplvl_features(df_top_lvl):
 
 # Utility functions
 def df_filter_and_group_by_mul_col(df, col, f_values, grp_by_cols, func):
-    df0 = df[df[col].isin(f_values)].groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1).reset_index()
+    df0 = df[df[col].isin(f_values)].groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1)
     return df0
 
 
@@ -145,13 +148,13 @@ def df_filter_and_group_by_single_col(df, col, f_value, grp_by_col, func):
 
 
 def df_filter_and_agg_by_diff_col(df, filter_col, f_values, grp_by_cols, agg_col, func):
-    df0 = df[df[filter_col].isin(f_values)].groupby(grp_by_cols).agg({agg_col : [func]}).droplevel(1, axis=1).reset_index()
+    df0 = df[df[filter_col].isin(f_values)].groupby(grp_by_cols).agg({agg_col : [func]}).droplevel(1, axis=1)
     return df0
 
 
 
 def df_group_by_mul_col(df, col, grp_by_cols, func):
-    df0 = df.groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1).reset_index()
+    df0 = df.groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1)
     return df0
 
 

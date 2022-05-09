@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
 
+
 def calc_delta_column(df, col, new_col):
-    df[new_col] = df[col] - df[col].shift(fill_value=0)
-    df[new_col] = df[new_col].apply(lambda x : 0 if x < 0 else x)
+    X = df[col] - df[col].shift(fill_value=0)
+    df[new_col] = X.apply(lambda x : 0 if x < 0 else x)
     return df
 
 
@@ -11,11 +12,18 @@ def columns_func(df, col, func):
     return func(df[col])
 
 
+def replace_nan_values(sr):
+    m = np.min(sr) - 10 
+    r = sr.fillna(m)
+    return r
+
+
 
 def column_z_score(sr):
     s = np.std(sr)
     m = np.mean(sr)
-    return sr.apply(lambda x: (x - m)/s if s > 0 else 0.0)
+    r = sr.apply(lambda x: (x - m)/s if s > 0 else 0.0)
+    return r
 
 
 def columns_func_on_unique_values(df_gb, ind_col, col):
