@@ -12,13 +12,6 @@ def columns_func(df, col, func):
     return func(df[col])
 
 
-def replace_nan_values(sr):
-    m = np.min(sr) - 10 
-    r = sr.fillna(m)
-    return r
-
-
-
 def column_z_score(sr):
     s = np.std(sr)
     m = np.mean(sr)
