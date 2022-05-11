@@ -15,7 +15,14 @@ def columns_func(df, col, func):
 def column_z_score(sr):
     s = np.std(sr)
     m = np.mean(sr)
-    r = sr.apply(lambda x: (x - m)/s if s > 0 else 0.0)
+    r = (sr - m) / s if m > 0 else pd.Series([0]*len(sr), index=sr.index.to_list())
+    return r
+
+
+def column_minmax_score(sr):
+    n = np.min(sr)
+    diff = np.max(sr) - np.min(sr)
+    r = (sr - n) / diff
     return r
 
 
@@ -58,3 +65,46 @@ def filter_by_weekends(df, datetime_col):
     df['weekDays'] = pd.to_datetime((df[datetime_col]).dt.date).dt.day_name()
     weekend = ['Saturday', 'Sunday']
     return df.loc[df['weekDays'].isin(weekend)]
+
+
+
+'''
+this method will be calculated in each column list of users
+the vector will present the normal distribution of the values in each feature column 
+'''
+
+
+def convert_by_z(df, col_list) :
+    def f(x, is_max):
+        m = np.mean(x)
+        s = np.std(x)
+        h = (m + s) / s
+        l =  (m - s) / s
+        r = h if is_max else l
+        return r
+    v =  df.apply(lambda y: f(y, True) if y.name in col_list else f(y, False))
+    return v 
+
+
+def convert_by_minmax(df, col_list) :
+    def f(x, is_max):
+        m = np.max(x)
+        n = np.min(x)
+        r = m if is_max else n
+        return r
+    v =  df.apply(lambda y: f(y, True) if y.name in col_list else f(y, False))
+    return v 
+
+
+def corr_vector(df, vec):
+    def f(n):
+        if n >= 0.15:  # high corr to emotional = 1
+            return 'emotional'
+        elif n <= -0.15: # low corr to emotional , rational = 2
+            return 'rational'
+        else:  # no corr at all
+            return 'nocorr'
+    dft = df.T
+    z = dft.apply(lambda x : x.corr(vec))
+    res =  z.map(lambda x : f(x))
+    return res
