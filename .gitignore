@@ -1,18 +1,11 @@
 
 # project files
 .idea/vcs.xml
-vector_creator.egg-info/*
-app_vector_creator/__pycache__/*
-metadata_parser/app_raw_to_df/__pycache__/*
-app_vector_creator/stats_models/__pycache__/*
-app_vector_creator/preprocess/__pycache__/*
-app_vector_creator/score_vectors/__pycache__/*
-metadata_parser/web_raw_to_df/__pycache__/*
-.ipynb_checkpoints/*
-metadata_parser/__pycache__/*
-NotebookSessions/dask-worker-space/*
+generate_data_extraction/features_functions/__pycache__/*
+generate_data_extraction/__pycache__/*
+/__pycache__/*
+
 NotebookSessions/.ipynb_checkpoints/*
-NotebookLocal/.ipynb_checkpoints/*
 NotebookWeb/.ipynb_checkpoints/*
 NotebookWeb/dask-worker-space/*
 # general folders

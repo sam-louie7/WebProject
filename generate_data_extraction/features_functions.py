@@ -108,3 +108,38 @@ def corr_vector(df, vec):
     z = dft.apply(lambda x : x.corr(vec))
     res =  z.map(lambda x : f(x))
     return res
+
+
+
+# DataFrame Utility functions
+def df_filter_and_group_by_mul_col(df, col, f_values, grp_by_cols, func):
+    df0 = df[df[col].isin(f_values)].groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1)
+    return df0
+
+
+def df_filter_and_group_by_single_col(df, col, f_value, grp_by_col, func):
+    df0 = df[df[col] == f_value].groupby(grp_by_col).agg({col : [func]})
+    return df0
+
+
+def df_filter_and_agg_by_diff_col(df, filter_col, f_values, grp_by_cols, agg_col, func):
+    df0 = df[df[filter_col].isin(f_values)].groupby(grp_by_cols).agg({agg_col : [func]}).droplevel(1, axis=1)
+    return df0
+
+
+
+def df_group_by_mul_col(df, col, grp_by_cols, func):
+    df0 = df.groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1)
+    return df0
+
+
+def df_by_group_by_single_column(df, grp_by_col, agg_col, func):
+    df0 = df.groupby(grp_by_col).agg({agg_col: [func]}).droplevel(1, axis=1)
+    return df0
+
+
+def ratio_on_df_columns(col1, col2):
+    x = col1.divide(col2, fill_value=0.0)
+    y = pd.DataFrame(x, index=col1.index, columns=['ratio'])
+    r = y.loc[~np.isfinite(y['ratio']), 'ratio'] = 0.0
+    return r
