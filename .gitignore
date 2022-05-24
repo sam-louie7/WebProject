@@ -1,15 +1,9 @@
 
 # project files
-.idea/vcs.xml
 .ipynb_checkpoints/*
 generate_data_extraction/__pycache__/*
 generate_data_extraction/.ipynb_checkpoints/*
 NotebookSessions/.ipynb_checkpoints/*
-# general folders
-venv
-generate_data_extraction.egg-info
-entries.json
-tenen_csv_files/*
 # ios
 .DS_Store
 ._.DS_Store

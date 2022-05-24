@@ -3,6 +3,7 @@ from generate_data_extraction.features_functions import *
 from generate_data_extraction.common_columns_lists import *
 
 
+
 '''
 REM : List of features from Tal's work ,  i will start with this and see how it goes
 
@@ -32,21 +33,6 @@ pr_HOUR_CAT1_ratio                          : night time 20:00 to 04:00
 '''
 
 
-
-def init_top_lvl_df(df, numeric_cols):
-    df['visitStartTime'] = convert_to_datetime(df, 'visitStartTime')
-    df = convert_multiple_columns_to_numeric(df, cols=numeric_cols) # numeric_cols) : columns list to convert to int
-    df = df.loc[df['totals.timeOnSite'] > 10] # take rows with timeOnSite > 10 sec
-    return df
-
-
-
-def init_hits_df(df, numeric_cols, time_col):
-    df['visitStartTime'] = convert_to_datetime(df, 'visitStartTime')
-    df = convert_multiple_columns_to_numeric(df, cols=numeric_cols)
-    df = calc_delta_column(df, time_col, 'hits.deltaTimeMS')
-    df = df.loc[df['totals.timeOnSite'] > 10] # take rows with timeOnSite > 10 sec
-    return df
 
 
 
@@ -128,40 +114,6 @@ def emotional_rational_toplvl_features(df_top_lvl):
     return df
 
 
-
-
-# Utility functions
-def df_filter_and_group_by_mul_col(df, col, f_values, grp_by_cols, func):
-    df0 = df[df[col].isin(f_values)].groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1)
-    return df0
-
-
-def df_filter_and_group_by_single_col(df, col, f_value, grp_by_col, func):
-    df0 = df[df[col] == f_value].groupby(grp_by_col).agg({col : [func]})
-    return df0
-
-
-def df_filter_and_agg_by_diff_col(df, filter_col, f_values, grp_by_cols, agg_col, func):
-    df0 = df[df[filter_col].isin(f_values)].groupby(grp_by_cols).agg({agg_col : [func]}).droplevel(1, axis=1)
-    return df0
-
-
-
-def df_group_by_mul_col(df, col, grp_by_cols, func):
-    df0 = df.groupby(grp_by_cols).agg({col : [func]}).droplevel(1, axis=1)
-    return df0
-
-
-def df_by_group_by_single_column(df, grp_by_col, agg_col, func):
-    df0 = df.groupby(grp_by_col).agg({agg_col: [func]}).droplevel(1, axis=1)
-    return df0
-
-
-def ratio_on_df_columns(col1, col2):
-    x = col1.divide(col2, fill_value=0.0)
-    y = pd.DataFrame(x, index=col1.index, columns=['ratio'])
-    r = y.loc[~np.isfinite(y['ratio']), 'ratio'] = 0.0
-    return column_z_score(r, 'ratio')
 
 
 
