@@ -6,29 +6,11 @@ from generate_data_extraction.common_columns_lists import *
 '''
 REM : List of features
 
-1. mean total time on session
-2. mean products in session
-3. mean time between hits 
-4. ratio median / max time between hits
-5. mean total page views
-6. ratio of median / max products in hit
-7. ratio viewed product / total products in session
-8. mean num of view products                                   : hits.eCommerceAction.action_type = 2
-9. ratio of median / max time between hits
-10. mean time to add product
-11. mean time to remove product
-12. ratio of median / max add product
-13. mean viewes producats
-14. mean number of repeated web pages
-15. max number of repeated web pages
-16. mean time between web pages
-17. ratio median / max time on max web pages
-18. ** mean time spend on max viewd page
-
+1. mean hits.product.isImpression per hit
 
 
 General Users Data measures :
-
+----------------------------
 0. buyers that are more then a minute + up tp a minute
 1. time to perchuse histogram 
 2. time to cart/ cart abandment hist
@@ -39,10 +21,6 @@ General Users Data measures :
 7. totals.sessionQualityDim
 
 '''
-
-
-
-
 
 def hesitation_features(df_top_lvl, df_hits):
 

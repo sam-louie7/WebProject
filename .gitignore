@@ -1,9 +1,12 @@
 
 # project files
 .ipynb_checkpoints/*
-generate_data_extraction/__pycache__/*
-generate_data_extraction/.ipynb_checkpoints/*
+generate_features/__pycache__/*
+generate_features/.ipynb_checkpoints/*
+generate_csv/__pycache__/*
+generate_csv/.ipynb_checkpoints/*
 NotebookSessions/.ipynb_checkpoints/*
+.idea/*
 # ios
 .DS_Store
 ._.DS_Store

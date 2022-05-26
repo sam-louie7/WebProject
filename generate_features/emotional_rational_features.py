@@ -5,7 +5,7 @@ from generate_data_extraction.common_columns_lists import *
 
 
 '''
-REM : List of features from Tal's work ,  i will start with this and see how it goes
+REM : List of features :
 
 pr_TENENG_SOURCE_RATIO
 pr_SOCIAL_SOURCE_RATIO
