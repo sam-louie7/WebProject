@@ -1,5 +1,5 @@
 import numpy as np
-from generate_data_extraction.features_functions import *
+from generate_features.features_functions import *
 
 
 def init_top_lvl_df(df, numeric_cols):

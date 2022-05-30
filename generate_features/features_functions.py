@@ -50,7 +50,10 @@ def convert_to_datetime(df, col):
 
 
 def convert_multiple_columns_to_numeric(df, cols):
-    df[cols] = df[cols].astype(int)
+    df_cols = df.columns.to_list()
+    for col in cols:
+        if col in df_cols:
+            df[col] = df[col].astype(int) 
     return df
 
 

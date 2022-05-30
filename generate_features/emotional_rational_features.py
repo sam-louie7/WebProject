@@ -1,8 +1,7 @@
+from operator import contains
 import numpy as np
-from generate_data_extraction.features_functions import *
-from generate_data_extraction.common_columns_lists import *
-
-
+from generate_features.features_functions import *
+from generate_features.common_columns_lists import *
 
 '''
 REM : List of features :
@@ -31,8 +30,43 @@ pr_endmonth_ratio                           : end of month 15-30 in the month
 pr_HOUR_CAT1_ratio                          : night time 20:00 to 04:00
 
 '''
+def emo_ratio_single_session_tl_features(df_tl, session_time, numeric_cols):
+    df_tl['visitStartTime'] = convert_to_datetime(df_tl, 'visitStartTime')
+    df_tl = convert_multiple_columns_to_numeric(df_tl, cols=numeric_cols)
+
+    # create tl feature df
+    df = pd.DataFrame()
+    df['trafficSourceRatio'] = 1 if df_tl['trafficSource.source'][0] in traffic_source_values else 0
+    df['trafficSourceSocialRatio'] = 1 if df_tl['trafficSource.source'].str.contains(social_source_values, case=False, regex = False)[0] else 0
+    df['trafficSourceSeRatio'] = 1 if df_tl['trafficSource.source'].str.contains(se_source_values, case=False)[0] else 0
+    df['mediumSourceFbRatio'] = 1 if df_tl['trafficSource.medium'].str.contains(medium_fb_values, case=False)[0] else 0
+    df['mediumSourceCpcRatio'] = 1 if df_tl['trafficSource.medium'].str.contains('cpc', case=False)[0] else 0
+    df['mediumSourceOrganicRatio'] =  1 if df_tl['trafficSource.source'][0] in organic_source_values else 0
+    df['avg_hits'] = df_tl['totals.hits'] if 'totals.hits' in df_tl.columns.to_list() else 0
+    df['avg_page_views'] = df_tl['totals.pageviews'] if 'totals.pageviews' in df_tl.columns.to_list() else 0
+    df['avg_time_on_site'] = session_time 
+    df['end_of_month_ratio'] = 1 if df_tl['visitStartTime'].dt.day[0] > 15 else 0
+    return df_tl['fullVisitorId'][0], df.fillna(0)
 
 
+
+def emo_ratio_single_session_hit_features(df_hit, numeric_cols):
+    df_hit['visitStartTime'] = convert_to_datetime(df_hit, 'visitStartTime')
+    df_hit = convert_multiple_columns_to_numeric(df_hit, cols=numeric_cols)
+
+    # create hits feature df
+    df = pd.DataFrame()
+    df['products_per_session'] = pd.Series(np.mean(df_hit['numOfProducts']))
+    df['avg_viewd_product'] = pd.Series(len(df_hit[df_hit['hits.eCommerceAction.action_type'].isin([2])]))
+    df['avg_time2hit'] = pd.Series(np.mean(df_hit['hits.deltaTimeMS']))
+    df['avg_time_add_prod'] = pd.Series(df_hit[df_hit['hits.eCommerceAction.action_type'].isin([2])]['hits.time'].agg('mean'))
+    df['avg_time_rmv_prod'] = pd.Series(df_hit[df_hit['hits.eCommerceAction.action_type'].isin([3])]['hits.time'].agg('mean'))
+    df['support_page'] = pd.Series(df_hit.loc[df_hit['hits.contentGroup.contentGroup1'] == 'Support Page']['hits.contentGroup.contentGroup1'].agg('count'))
+    df['article_page'] = pd.Series(df_hit.loc[df_hit['hits.contentGroup.contentGroup1'] == 'Article Page']['hits.contentGroup.contentGroup1'].agg('count'))
+    df['search_keyword'] = pd.Series(df_hit.loc[df_hit['hits.contentGroup.contentGroup1'] == 'Thank you Page']['hits.contentGroup.contentGroup1'].agg('count'))
+    df['product_page'] = pd.Series(df_hit.loc[df_hit['hits.contentGroup.contentGroup1'] == 'Product Page']['hits.contentGroup.contentGroup1'].agg('count'))
+    df['category_page'] = pd.Series(df_hit.loc[df_hit['hits.contentGroup.contentGroup1'] == 'Category Page']['hits.contentGroup.contentGroup1'].agg('count'))
+    return df.fillna(0)
 
 
 
@@ -79,6 +113,7 @@ def emotional_rational_hits_features(df_hits):
     return df
 
 
+
 def emotional_rational_toplvl_features(df_top_lvl):
     # tenen source ratio :
     sr = df_top_lvl.groupby('fullVisitorId').apply(lambda x : filter_in_columns_func(x, 'trafficSource.source', len, traffic_source_values))
@@ -112,10 +147,3 @@ def emotional_rational_toplvl_features(df_top_lvl):
     df['end_of_month_ratio'] = sr
     
     return df
-
-
-
-
-
-
-
