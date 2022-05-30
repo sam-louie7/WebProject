@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <h1 class="text-center">tenen model</h1>
+    <form class="text-center" action="/", method="post" enctype="multipart/form-data"> 
+        <input class="form-control" type="file" name="textfile">
+        <input class="btn btn-primary mt-3" type="submit" value="predict model">
+    </form>
+
+    {% if prediction %}
+      <p class="text-center" style="font-size:24px">{{ prediction }}</p> 
+    {% endif %}
+
+
+    <h2 class="text-center">tenen database</h1>
+    {% if query_all %}
+      <p class="text-center" style="font-size:20px">{{ query_all }}</p> 
+    {% endif %}
+
+  </body>
+</html>
