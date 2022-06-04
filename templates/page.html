@@ -11,7 +11,7 @@
   <body>
     <h1 class="text-center">tenen model</h1>
     <form class="text-center" action="/", method="post" enctype="multipart/form-data"> 
-        <input class="form-control" type="file" name="textfile">
+        <input type="file" name="textfile">
         <input class="btn btn-primary mt-3" type="submit" value="predict model">
     </form>
 
@@ -20,10 +20,16 @@
     {% endif %}
 
 
-    <h2 class="text-center">tenen database</h1>
+    <h2 class="text-center">Tenen DB</h2>
     {% if query_all %}
       <p class="text-center" style="font-size:20px">{{ query_all }}</p> 
     {% endif %}
+
+    <h2 class="text-center">Delete Entry</h2>
+    <form class="text-center" action="/delete" method="post">
+      <input type="text" name="delete">
+      <input class="btn btn-primary mt-3" type="submit" value="delete id">
+    </form>
 
   </body>
 </html>

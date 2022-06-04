@@ -14,17 +14,17 @@ from generate_features.emotional_rational_features import emo_ratio_single_sessi
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tenen.db'
 db = SQLAlchemy(app)
-model = pickle.load(open('./models/models_emo_ratio_model.pkl','rb'))
+model = pickle.load(open('./models/active_model.pkl','rb'))
 
 class Entry(db.Model):
     id_user = db.Column(db.String(50), primary_key=True)
     tag = db.Column(db.String(20), nullable=False)
     session_time = db.Column(db.Integer, default=0)
     page_views = db.Column(db.Integer, default=0)
-    prod_views= db.Column(Float, default=0.0)
+    prod_views= db.Column(db.Float, default=0.0)
 
     def __repr__(self):
-        return f'user-id: {self.id_user},  session time (sec): {self.session_time},  page veiwed: {self.page_views},  avg prod viewed: {self.prod_views}, pred: {self.tag}'
+        return f'user-id: {self.id_user},  session time(sec): {self.session_time}, page veiwed: {self.page_views}, avg prod viewed: {self.prod_views}, pred:{self.tag}'
 
 
 @app.route('/', methods=['GET'])
@@ -62,6 +62,19 @@ def predict():
         return 'there was an issue with your db'
     ## prepare classification
     
+
+@app.route('/delete/', methods=['POST'])
+def delete():
+    id = request.form["delete"]
+    task_to_delete = Entry.query.get_or_404(id)
+    try:
+        db.session.delete(task_to_delete)
+        db.session.commit()
+        queryall = Entry.query.all()
+        query_res = f'{queryall}'
+        return render_template('page.html', query_all=query_res)
+    except:
+        return 'there was an issue with your db'
 
 
 def create_feature_df(path):
